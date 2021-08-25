@@ -1,7 +1,29 @@
+import { Route, Switch, Redirect } from 'react-router-dom';
+import Header from './components/UI/Header';
+import ProductDetail from './pages/ProductDetail';
+import Products from './pages/Products';
+import Welcome from './pages/Welcome';
+
 function App() {
   return (
     <div>
-      <h2>Let's get started!</h2>
+      <Header />
+      <main>
+        <Switch>
+          <Route path="/" exact>
+            <Redirect to="/welcome" />
+          </Route>
+          <Route path="/welcome">
+            <Welcome />
+          </Route>
+          <Route path="/products" exact>
+            <Products />
+          </Route>
+          <Route path="/products/:productId">
+            <ProductDetail />
+          </Route>
+        </Switch>
+      </main>
     </div>
   );
 }
