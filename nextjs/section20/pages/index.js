@@ -1,12 +1,39 @@
+import { MongoClient } from "mongodb";
+
+import Head from 'next/head'
+import { Fragment } from 'react';
 import MeetupList from "../components/meetups/MeetupList";
 
-const DUMMY_DATA = [
-  { id: '1', title: 'First meetup', address: 'Some street 1', image: 'https://picsum.photos/750/300', description: 'This is meetup description' },
-  { id: '2', title: 'Second meetup', address: 'Some street 1', image: 'https://picsum.photos/750/300', description: 'This is second meetup description' },
-];
-
-const HomePage = () => {
-  return <MeetupList meetups={DUMMY_DATA}></MeetupList>
+const HomePage = ({ meetups }) => {
+  return (<Fragment>
+    <Head>
+      <title>React meetups</title>
+      <meta name="description" content="My react app for meetups" />
+    </Head>
+    <MeetupList meetups={meetups} />
+  </Fragment>);
 }
+
+export const getStaticProps = async () => {
+  const client = await MongoClient.connect('mongodb+srv://admin:admin@cluster0.linfz.mongodb.net/meetups?retryWrites=true&w=majority');
+  const db = client.db();
+  const meetupsCollection = db.collection('meetups');
+
+  const meetups = await meetupsCollection.find().toArray();
+
+  client.close();
+
+  return {
+    props: {
+      meetups: meetups.map(meetup => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString()
+      }))
+    },
+    revalidate: 60
+  };
+};
 
 export default HomePage;
